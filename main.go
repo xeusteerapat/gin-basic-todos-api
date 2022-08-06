@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/xeusteerapat/gin-basic-todos-api/todo"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -20,6 +21,7 @@ func main() {
 	}
 
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&todo.Todo{})
 
 	db.Create(&User{
 		Name: "Teerapat",
@@ -27,8 +29,19 @@ func main() {
 
 	r := gin.Default()
 
+	// health check
+	r.GET("/health-check", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"Status": "OK",
+		})
+	})
+
 	usersHandler := UsersHandler{db: db}
 	r.GET("/users", usersHandler.User)
+
+	handler := todo.NewTodoHandler(db)
+
+	r.POST("/todos", handler.NewTask)
 
 	r.Run()
 }
