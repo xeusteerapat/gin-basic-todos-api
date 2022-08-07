@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/xeusteerapat/gin-basic-todos-api/auth"
 	"github.com/xeusteerapat/gin-basic-todos-api/todo"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -35,6 +36,8 @@ func main() {
 			"Status": "OK",
 		})
 	})
+
+	r.GET("/token", auth.AccessToken)
 
 	usersHandler := UsersHandler{db: db}
 	r.GET("/users", usersHandler.User)
