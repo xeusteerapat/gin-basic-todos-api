@@ -37,14 +37,16 @@ func main() {
 		})
 	})
 
-	r.GET("/token", auth.AccessToken)
+	r.GET("/token", auth.AccessToken("==signature=="))
+
+	protectedRoute := r.Group("", auth.Protect([]byte("==signature==")))
 
 	usersHandler := UsersHandler{db: db}
 	r.GET("/users", usersHandler.User)
 
 	handler := todo.NewTodoHandler(db)
 
-	r.POST("/todos", handler.NewTask)
+	protectedRoute.POST("/todos", handler.NewTask)
 
 	r.Run()
 }
