@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/xeusteerapat/gin-basic-todos-api/auth"
 	"github.com/xeusteerapat/gin-basic-todos-api/todo"
+	"golang.org/x/time/rate"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -56,6 +57,7 @@ func main() {
 	})
 
 	r := gin.Default()
+	r.GET("/limit", limitedHandler)
 	r.GET("/x", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"buildCommit": buildCommit,
@@ -120,4 +122,17 @@ func (usersHandler *UsersHandler) User(ctx *gin.Context) {
 	usersHandler.db.First(&u)
 
 	ctx.JSON(200, u)
+}
+
+var limiter = rate.NewLimiter(5, 5)
+
+func limitedHandler(ctx *gin.Context) {
+	if !limiter.Allow() {
+		ctx.AbortWithStatus(http.StatusTooManyRequests)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"messaage": "pong",
+	})
 }
