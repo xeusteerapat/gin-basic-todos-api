@@ -18,6 +18,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	buildCommit = "dev"
+	buildTime   = time.Now().String()
+)
+
 type User struct {
 	gorm.Model // gorm will add ID, CreatedAt, UpdatedAt, DeletedAt for us
 	Name       string
@@ -44,6 +49,12 @@ func main() {
 	})
 
 	r := gin.Default()
+	r.GET("/x", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"buildCommit": buildCommit,
+			"buildTime":   buildTime,
+		})
+	})
 
 	// health check
 	r.GET("/health-check", func(ctx *gin.Context) {
