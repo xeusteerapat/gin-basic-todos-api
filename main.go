@@ -1,7 +1,11 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/xeusteerapat/gin-basic-todos-api/auth"
 	"github.com/xeusteerapat/gin-basic-todos-api/todo"
 	"gorm.io/driver/sqlite"
@@ -16,6 +20,11 @@ type User struct {
 var db *gorm.DB
 
 func main() {
+	err := godotenv.Load("local.env")
+	if err != nil {
+		log.Printf("Please consider environment variables: %s", err)
+	}
+
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic("Database connection failed!")
@@ -37,9 +46,9 @@ func main() {
 		})
 	})
 
-	r.GET("/token", auth.AccessToken("==signature=="))
+	r.GET("/token", auth.AccessToken(os.Getenv("SIGN")))
 
-	protectedRoute := r.Group("", auth.Protect([]byte("==signature==")))
+	protectedRoute := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
 	usersHandler := UsersHandler{db: db}
 	r.GET("/users", usersHandler.User)
