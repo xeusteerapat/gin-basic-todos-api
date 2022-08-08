@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -57,7 +63,34 @@ func main() {
 
 	protectedRoute.POST("/todos", handler.NewTask)
 
-	r.Run()
+	// Handle Graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	server := &http.Server{
+		Addr:           ":" + os.Getenv("PORT"),
+		Handler:        r,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   20 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	<-ctx.Done()
+	stop()
+	fmt.Println("Shutting down gracefully, press Ctrl+C again to force")
+
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(timeoutCtx); err != nil {
+		fmt.Println(err)
+	}
 }
 
 type UsersHandler struct {
