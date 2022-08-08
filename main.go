@@ -31,7 +31,14 @@ type User struct {
 var db *gorm.DB
 
 func main() {
-	err := godotenv.Load("local.env")
+	// Liveness probe
+	_, err := os.Create("/tmp/live")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove("/tmp/live")
+
+	err = godotenv.Load("local.env")
 	if err != nil {
 		log.Printf("Please consider environment variables: %s", err)
 	}
