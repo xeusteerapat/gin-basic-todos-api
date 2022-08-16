@@ -9,3 +9,11 @@ go build \
         -o app
         "
 ```
+
+## Example `.env`
+
+```shell
+PORT=8080
+SIGN=YOUR_SECRET_PASSWORD
+DB_CONN=USER:YOUR_SECRET_PASSWORD@tcp(127.0.0.1:3306)/YOUR_DB_NAME?charset=utf8mb4&parseTime=True&loc=Local
+```
