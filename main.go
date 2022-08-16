@@ -15,7 +15,7 @@ import (
 	"github.com/xeusteerapat/gin-basic-todos-api/auth"
 	"github.com/xeusteerapat/gin-basic-todos-api/todo"
 	"golang.org/x/time/rate"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -28,8 +28,6 @@ type User struct {
 	gorm.Model // gorm will add ID, CreatedAt, UpdatedAt, DeletedAt for us
 	Name       string
 }
-
-var db *gorm.DB
 
 func main() {
 	// Liveness probe
@@ -44,7 +42,7 @@ func main() {
 		log.Printf("Please consider environment variables: %s", err)
 	}
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(os.Getenv("DB_CONN")), &gorm.Config{})
 	if err != nil {
 		panic("Database connection failed!")
 	}
