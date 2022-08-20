@@ -96,6 +96,7 @@ func main() {
 
 	protectedRoute.POST("/todos", handler.NewTask)
 	protectedRoute.GET("/todos", handler.List)
+	protectedRoute.DELETE("/todos/:id", handler.Remove)
 
 	// Handle Graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

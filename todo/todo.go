@@ -2,6 +2,7 @@ package todo
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -63,4 +64,32 @@ func (t *TodoHandler) List(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, todos)
+}
+
+func (t *TodoHandler) Remove(ctx *gin.Context) {
+	todoIdParam := ctx.Param("id")
+
+	todoId, err := strconv.Atoi(todoIdParam)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	result := t.db.Delete(&Todo{}, todoId)
+
+	if err := result.Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success remove",
+	})
 }
