@@ -95,6 +95,7 @@ func main() {
 	handler := todo.NewTodoHandler(db)
 
 	protectedRoute.POST("/todos", handler.NewTask)
+	protectedRoute.GET("/todos", handler.List)
 
 	// Handle Graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

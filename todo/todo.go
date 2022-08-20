@@ -48,3 +48,19 @@ func (t *TodoHandler) NewTask(ctx *gin.Context) {
 		"ID": todo.ID,
 	})
 }
+
+func (t *TodoHandler) List(ctx *gin.Context) {
+	var todos []Todo
+
+	result := t.db.Find(&todos)
+
+	if err := result.Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, todos)
+}
