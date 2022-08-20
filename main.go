@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/xeusteerapat/gin-basic-todos-api/auth"
@@ -55,6 +56,20 @@ func main() {
 	})
 
 	r := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{
+		"http://localhost:3000", // whatever your frontend url
+	}
+
+	corsConfig.AllowHeaders = []string{
+		"Origin",
+		"Authorization",
+		"TransactionID",
+	}
+
+	r.Use(cors.New(corsConfig))
+
 	r.GET("/limit", limitedHandler)
 	r.GET("/x", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
